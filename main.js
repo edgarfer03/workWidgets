@@ -25,7 +25,7 @@
 			console.log('onCustomWidgetResize', width, height);
 			let sthg = this.dataBindings.getDataBinding('myDataSource').removeDimension('REGION_LEVEL_02_DESC');
 			console.log('STHG', typeof sthg, sthg);
-			sthg.then(this.myDataSource);
+			sthg.then('AFTER STHG', this.myDataSource);
 		  }
 		  
 		/*
