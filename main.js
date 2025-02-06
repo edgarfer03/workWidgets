@@ -23,6 +23,9 @@
 
 		onCustomWidgetResize (width, height) {
 			console.log('onCustomWidgetResize', width, height);
+			let sthg = this.dataBindings.getDataBinding('myDataSource').removeDimension('REGION_LEVEL_02_DESC');
+			console.log('STHG', typeof sthg, sthg);
+			sthg.then(this.myDataSource);
 		  }
 		  
 		/*
@@ -86,6 +89,7 @@
 					}
 					console.log('dimensions', self.dataBindings.getDataBinding('myDataSource').getDimensions('dimensions'));
 				}
+				console.log('this.myDataSource from render', this.myDataSource);
 
 				async function waitForDataBinding() {
 					while ( this.myDataSource.status !== "success") {
