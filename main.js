@@ -87,20 +87,15 @@
 					console.log('dimensions', self.dataBindings.getDataBinding('myDataSource').getDimensions('dimensions'));
 				}
 
-				function waitForSuccess(obj) {
-					return new Promise((resolve, reject) => {
-						const checkStatus = setInterval(() => {
-							if (obj.status === 'success') {
-								clearInterval(checkStatus);
-								resolve('Status is success!');
-							} else {
-								console.log('Waiting for status to be success...', obj);
-							}
-						}, 500); // Poll every 500ms
-					});
-				}
+				async function waitForDataBinding() {
+					while ( this.myDataSource.status !== "success") {
+					  await new Promise((resolve) => setTimeout(resolve, 800)); 
+					  console.log("Waiting for data binding to be ready...", this.myDataSource);
+					}
+					console.log("Data binding is ready:", this.dataBinding);
+				  }
 				  
-				removeDimensions(temp_dimensions).then(() => {return waitForSuccess(this.myDataSource)}).then(() => {waitForSuccess()}).then(() => {
+				removeDimensions(temp_dimensions).then(() => {waitForDataBinding()}).then(() => {
 					console.log('Dimensions removal process complete');
 					console.log('this.cardIndexes', this.cardIndexes);
 					
