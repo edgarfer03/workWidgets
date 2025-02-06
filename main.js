@@ -3,7 +3,7 @@
 
 	class ColoredBox extends HTMLElement {
 		constructor() {
-			super(); 
+			super();
 			this.attachShadow({mode: "open"});
 			this.addEventListener("click", event => {
 				var event = new Event("onClick");
@@ -99,6 +99,7 @@
 						}, 500); // Poll every 500ms
 					});
 				}
+				console.log('again this.myDataSource', this.myDataSource);
 				  
 				removeDimensions(temp_dimensions).then(() => {return waitForSuccess(this.myDataSource)}).then(() => {waitForSuccess()}).then(() => {
 					console.log('Dimensions removal process complete');
