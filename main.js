@@ -26,6 +26,7 @@
 			let sthg = this.dataBindings.getDataBinding('myDataSource').removeDimension('REGION_LEVEL_02_DESC');
 			console.log('STHG', typeof sthg, sthg);
 			sthg.then(() => console.log('AFTER STHG', this.myDataSource));
+			console.log('testing webhook');
 		  }
 		  
 		/*
