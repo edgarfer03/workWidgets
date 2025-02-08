@@ -1,5 +1,5 @@
 (function() { 
-;
+
 
 	class ColoredBox extends HTMLElement {
 		constructor() {
@@ -10,46 +10,86 @@
 				this.dispatchEvent(event);
 			});
 			this._props = {};
-			document.addEventListener('indexesUpdated', (e) => {
+			this.drawFlag = false; // Flag to check if the draw function has been called
+			/*document.addEventListener('indexesUpdated', (e) => {
 				console.log('EVENT RECEIVED');
 				console.log(e.detail.indexes);
 				this.cardIndexes = e.detail.indexes;
 				this.updateNeeded = true;
+				this.removeDimensions(this.dataBindings.getDataBinding('myDataSource').getDimensions('dimensions'));
 				this.render();
-			});
+			});*/
 			this.dataTree = {};
 			this.updateNeeded = false;
+			this.temp_dimensions = [];
 		}
 
-		onCustomWidgetResize (width, height) {
+		async onCustomWidgetResize (width, height) {
 			console.log('onCustomWidgetResize', width, height);
+			/*
 			let sthg = this.dataBindings.getDataBinding('myDataSource').removeDimension('REGION_LEVEL_02_DESC');
 			console.log('STHG', typeof sthg, sthg);
-			sthg.then(() => console.log('AFTER STHG', this.myDataSource));
-			console.log('testing webhook222');
+			sthg.then(() => console.log('AFTER STHG', this.myDataSource));*/
 		  }
-		  
-		/*
+
+		async removeDimensions(dimensions) {
+			this.temp_dimensions = this.dataBindings.getDataBinding('myDataSource').getDimensions('dimensions'); // Store dimensions in List
+
+			const self = this;
+			for (const dimension of dimensions) {
+				try {
+					// Await each removal to ensure the previous one completes first
+					await self.dataBindings.getDataBinding('myDataSource').removeDimension(dimension);
+					console.log(`Dimension ${dimension} removed successfully.`);
+				} catch (error) {
+					console.error(`Error removing dimension ${dimension}:`, error);
+					// Handle or continue based on your needs
+				}
+			}
+			this.drawFlag = true;
+		}
+		
+		
 		onCustomWidgetBeforeUpdate(changedProperties) {
 			console.log('onCustomWidgetBeforeUpdate', changedProperties);
 			this._props = { ...this._props, ...changedProperties };
-		}*/
+		}
 
-		onCustomWidgetAfterUpdate(changedProperties) {
+		async onCustomWidgetAfterUpdate(changedProperties) {
 			console.log('onCustomWidgetAfterUpdate', changedProperties);
 			this._props = { ...this._props, ...changedProperties };
+			console.log('myDataSource' in changedProperties);
+			console.log('this.DrawFlag', this.drawFlag);
+			console.log('mydatasource status', this.myDataSource);
 
 			if ("color" in changedProperties) {
 				this.style["background-color"] = changedProperties["color"];
 			}
-			if ("opacity" in changedProperties) {
-				this.style["opacity"] = changedProperties["opacity"];
-			}
+			if ('myDataSource' in changedProperties) { 
+				console.log('myDataSource is in changedProperties');
+				if (this.drawFlag && this.myDataSource.state === "success" && Object.keys(this.myDataSource.metadata.dimensions).length == 0) {
+					console.log('dimensions have been removed. HERE :)')
+					console.log('temp_dimensions', this.temp_dimensions);
+
+					const self = this;
+					for (const dimension of this.temp_dimensions) {
+						try {
+							await self.dataBindings.getDataBinding('myDataSource').addDimensionToFeed('dimensions', dimension);
+							console.log(`Dimension ${dimension} removed successfully.`);
+						} catch (error) {
+							console.error(`Error removing dimension ${dimension}:`, error);
+							// Handle or continue based on your needs
+						}
+					}
+
+			}}
 			
 			this.render();
 		}
 
-		async render() {
+
+		
+		render() {
 			console.log('RENDER');
 			let dataBindingMetadata = this.myDataSource.metadata;
 			console.log('DATA BINDING METADATA from render main', dataBindingMetadata);
@@ -69,7 +109,7 @@
 					<button type="submit">Submit Grades</button>
 				</form>
 			`;
-
+			/*
 			if (this.updateNeeded){
 				let temp_dimensions= this.dataBindings.getDataBinding('myDataSource').getDimensions('dimensions'); // Store dimensions in List
 				console.log('This', this);
@@ -77,29 +117,9 @@
 				console.log('self', self);
 				console.log('temp_dimensions before', temp_dimensions);
 
-				async function removeDimensions(dimensions) {
-					for (const dimension of dimensions) {
-						try {
-							// Await each removal to ensure the previous one completes first
-							await self.dataBindings.getDataBinding('myDataSource').removeDimension(dimension);
-							console.log(`Dimension ${dimension} removed successfully.`);
-						} catch (error) {
-							console.error(`Error removing dimension ${dimension}:`, error);
-							// Handle or continue based on your needs
-						}
-					}
-					console.log('dimensions', self.dataBindings.getDataBinding('myDataSource').getDimensions('dimensions'));
-				}
+
 				console.log('this.myDataSource from render', this.myDataSource);
 
-				async function waitForDataBinding() {
-					while ( this.myDataSource.status !== "success") {
-					  await new Promise((resolve) => setTimeout(resolve, 800)); 
-					  console.log("Waiting for data binding to be ready...", this.myDataSource);
-					}
-					console.log("Data binding is ready:", this.dataBinding);
-				  }
-				  
 				removeDimensions(temp_dimensions).then(() => {waitForDataBinding()}).then(() => {
 					console.log('Dimensions removal process complete');
 					console.log('this.cardIndexes', this.cardIndexes);
@@ -184,7 +204,7 @@
 				eval(this.shadowRoot.querySelector('#customCode').value);
 			});
 			
-			this.updateNeeded = false;
+			this.updateNeeded = false;*/
 		}
 		
 		

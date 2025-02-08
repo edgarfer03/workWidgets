@@ -1,22 +1,6 @@
-(function()  {
-	class GradeEntryForm extends HTMLElement {
-		constructor() {
-			super();
-			this.attachShadow({ mode: 'open' });
-			this.elements = [];
-			this.indexes = {};
-			this._myDataSource;
-		}
-		
-		connectedCallback() {
-			console.log('from styling.js connectedCallback');
-			this.render();
-		}
-		
-
-		render() {
-			console.log('from styling.js render');
-			this.shadowRoot.innerHTML = `
+(function () {
+	const template = document.createElement('template');
+	template.innerHTML = `
 				<style>
 					:host {
 						font-family: 'Arial', sans-serif;
@@ -76,30 +60,43 @@
 						border-top: 1px solid #ecf0f1;
 					}
 				</style>
-				<div class="container">
-					<h1>dimension Grade Entry</h1>
-					<form id="mainFormIdxs" class="index-form">
-						${this.elements.map(dimension => `
-							<div class="index-num">
-								<input type="number" name="${dimension[1]}" min="0" max="100" step="0.01" required>
-								<label for="${dimension[0]}">${dimension[0]}</label>
-							</div>
-						`).join('')}
-						<button type="submit">Submit Grades</button>
-					</form>
-					<div id="gradesSummary" class="dim-summary"></div>
+				<div class="container" id="mainFormContainer">
+
 				</div>
 			`;
+
+	class GradeEntryForm extends HTMLElement {
+		constructor() {
+			super();
+			this.attachShadow({ mode: 'open' }).appendChild(template.content.cloneNode(true));
+
+
+			this.elements = [];
+			this.indexes = {};
+			this.drawInputFields();
+		}
+
+		connectedCallback() {
+			console.log('from styling.js connectedCallback');
+			this.render();
+		}
+
+
+		render() {
+			console.log('from styling.js render');
 			console.log('DATABINDING', this.myDataSource)
 
-			this.shadowRoot.querySelector('#mainFormIdxs').addEventListener('submit', this.handleFormSubmit.bind(this));
-			}
+		}
 
 
 		set myDataSource(dataBinding) {
 
 			this._myDataSource = dataBinding;
-			console.log('from styling.js', this._myDataSource);
+			console.log('from styling.jsssss', this._myDataSource);
+			console.dir(this);
+			for (let k in this) {
+				console.log('key', k);
+			}
 			let dataBindObj = this._myDataSource.metadata;
 			if (!dataBindObj) {
 				return;
@@ -119,26 +116,57 @@
 
 			// remove dimensions that are not in dataBinding anymore
 			this.elements = this.elements.filter(([description, id]) => {
-				return Object.keys(dataBindObj.dimensions).map(codeName => dataBindObj.dimensions[codeName].id).includes(id) 
-				|| Object.keys(dataBindObj.mainStructureMembers).map(codeName => dataBindObj.mainStructureMembers[codeName].id).includes(id);
+				return Object.keys(dataBindObj.dimensions).map(codeName => dataBindObj.dimensions[codeName].id).includes(id)
+					|| Object.keys(dataBindObj.mainStructureMembers).map(codeName => dataBindObj.mainStructureMembers[codeName].id).includes(id);
 			});
 
+
 			console.log('from styling.js list', this.elements);
-			this.render();
+			this.drawInputFields();
+		}
+
+		drawInputFields() {
+			this.shadowRoot.querySelector('#mainFormContainer').innerHTML = `<h1>Tree card indexes</h1>
+						<form class="index-form" onsubmit="return false;">
+						${this.elements.map(dimension => `
+							
+							<div class="index-num">
+								<input type="number" name="${dimension[1]}" min="0" max="100" step="0.01" required>
+								<label for="${dimension[0]}">${dimension[0]}</label>
+							</div>
+							
+						`).join('')}
+							<button id="bt209" type="button">Draw Visual</button>
+						</form>
+
+					`;
+			this.shadowRoot.querySelector('#bt209').addEventListener('click', (event) => {
+				event.preventDefault(); console.log('event', event);
+				this.handleFormSubmit();
+			});
+
+			console.log('this.cradIDXs', this.myCardIdxs);
+
+			let list_of_dimensions = this.elements.map(dimension => dimension[1]);
+			console.log('list_of_dimensions', list_of_dimensions);
+			for (let dimension of list_of_dimensions) {
+				if (this.myCardIdxs(dimension) != undefined) {
+					this.shadowRoot.querySelector(`input[name="${dimension}"]`).value = this.myCardIdxs(dimension);
+				}
 			}
+		}
 
+		handleFormSubmit() {
 
-		handleFormSubmit(event) {
-			console.log('from styling.js handleFormSubmit');
-			event.preventDefault();
 			console.log('databinding outside', this.myDataSource);
 			const inputs = this.shadowRoot.querySelectorAll('input[type="number"]');
 
 			inputs.forEach(input => {
 				const name = input.name;
-				if (name) { 
-					this.indexes[name] = input.value;  
+				if (name) {
+					this.indexes[name] = input.value;
 				}
+
 			});
 
 			this.dispatchFormData();
@@ -146,13 +174,14 @@
 
 		dispatchFormData() {
 			console.log('from styling.js dispatchFormData');
-			const event = new CustomEvent('indexesUpdated', {
-				detail: { indexes: this.indexes},
-				bubbles: true,
-				composed: true
-			});
-			console.log('from styling.js dispatchFormData', event);
-			this.dispatchEvent(event);
+
+			this.dispatchEvent(new CustomEvent("propertiesChanged", {
+				detail: {
+					properties: {
+						myCardIdxs: this.indexes
+					}
+				}
+			}));
 		}
 	}
 

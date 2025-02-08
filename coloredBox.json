@@ -1,6 +1,6 @@
 {
 	"id": "com.sap.sample.coloredboxx",
-	"version": "1.0.12",
+	"version": "1.1.2",
 	"name": "Colored Boxx",
 	"description": "A colored box",
 	"newInstancePrefix": "ColoredBox",
@@ -12,29 +12,19 @@
 		{
 			"kind": "main",
 			"tag": "com-sap-sample-coloredbox",
-			"url": "https://github.com/edgarfer03/workWidgets/blob/main/main.js",
+			"url": "https://localhost:8080/main.js",
 			"integrity": "",
 			"ignoreIntegrity": true
 		},
 		{
 			"kind": "styling",
 			"tag": "com-sap-sample-coloredbox-styling",
-			"url": "https://github.com/edgarfer03/workWidgets/blob/main/styling.js",
+			"url": "https://localhost:8080/styling.js",
 			"integrity": "",
 			"ignoreIntegrity": true
 		}
 	],
 	"properties": {
-		"color": {
-			"type": "string",
-			"description": "Background color",
-			"default": "red"
-		},
-		"opacity": {
-			"type": "number",
-			"description": "Opacity",
-			"default": 1
-		},
 		"width": {
 			"type": "integer",
 			"default": 100
@@ -42,25 +32,14 @@
 		"height": {
 			"type": "integer",
 			"default": 100
+		},
+		"myCardIdxs": {
+			"type": "Object<string>",
+			"description": "A collection of strings object"
 		}
 	},
 	"methods": {
-		"setColor": {
-			"description": "Sets the background color.",
-			"parameters": [
-				{
-					"name": "newColor",
-					"type": "string",
-					"description": "The new background color"
-				}
-			],
-			"body": "this.color = newColor;"
-		},
-		"getColor": {
-			"returnType": "string",
-			"description": "Returns the background color.",
-			"body": "return this.color;"
-		}
+
 	},
 	"events": {
 		"onClick": {
