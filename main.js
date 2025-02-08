@@ -5,34 +5,16 @@
 		constructor() {
 			super();
 			this.attachShadow({mode: "open"});
-			this.addEventListener("click", event => {
-				var event = new Event("onClick");
-				this.dispatchEvent(event);
-			});
-			this._props = {};
-			this.drawFlag = false; // Flag to check if the draw function has been called
-			/*document.addEventListener('indexesUpdated', (e) => {
-				console.log('EVENT RECEIVED');
-				console.log(e.detail.indexes);
-				this.cardIndexes = e.detail.indexes;
-				this.updateNeeded = true;
-				this.removeDimensions(this.dataBindings.getDataBinding('myDataSource').getDimensions('dimensions'));
-				this.render();
-			});*/
 			this.dataTree = {};
-			this.updateNeeded = false;
 			this.temp_dimensions = [];
 		}
 
 		async onCustomWidgetResize (width, height) {
 			console.log('onCustomWidgetResize', width, height);
-			/*
-			let sthg = this.dataBindings.getDataBinding('myDataSource').removeDimension('REGION_LEVEL_02_DESC');
-			console.log('STHG', typeof sthg, sthg);
-			sthg.then(() => console.log('AFTER STHG', this.myDataSource));*/
 		  }
 
 		async removeDimensions(dimensions) {
+			console.log('removeDimensions');
 			this.temp_dimensions = this.dataBindings.getDataBinding('myDataSource').getDimensions('dimensions'); // Store dimensions in List
 
 			const self = this;
@@ -49,18 +31,15 @@
 			this.drawFlag = true;
 		}
 		
-		
+		/*
 		onCustomWidgetBeforeUpdate(changedProperties) {
 			console.log('onCustomWidgetBeforeUpdate', changedProperties);
 			this._props = { ...this._props, ...changedProperties };
-		}
+		}*/
 
 		async onCustomWidgetAfterUpdate(changedProperties) {
 			console.log('onCustomWidgetAfterUpdate', changedProperties);
 			this._props = { ...this._props, ...changedProperties };
-			console.log('myDataSource' in changedProperties);
-			console.log('this.DrawFlag', this.drawFlag);
-			console.log('mydatasource status', this.myDataSource);
 
 			if ("color" in changedProperties) {
 				this.style["background-color"] = changedProperties["color"];
@@ -69,20 +48,26 @@
 				console.log('myDataSource is in changedProperties');
 				if (this.drawFlag && this.myDataSource.state === "success" && Object.keys(this.myDataSource.metadata.dimensions).length == 0) {
 					console.log('dimensions have been removed. HERE :)')
-					console.log('temp_dimensions', this.temp_dimensions);
+					console.log('DataBindings should have only the measures here', this.myDataSource);
 
 					const self = this;
 					for (const dimension of this.temp_dimensions) {
 						try {
 							await self.dataBindings.getDataBinding('myDataSource').addDimensionToFeed('dimensions', dimension);
-							console.log(`Dimension ${dimension} removed successfully.`);
+							console.log(`Dimension ${dimension} added successfully.`);
 						} catch (error) {
-							console.error(`Error removing dimension ${dimension}:`, error);
+							console.error(`Error adding dimension ${dimension}:`, error);
 							// Handle or continue based on your needs
 						}
 					}
 
 			}}
+			if ('myCardIdxs' in changedProperties) { 
+				// this should run after dispatch from comes from styling.js
+				console.log('myCardIdxs is in changedProperties');
+				// removing dimensions will trigger onCustomWidgetAfterUpdate again and then myDataSource in changedProperties will be true
+				this.removeDimensions(this.dataBindings.getDataBinding('myDataSource').getDimensions('dimensions'));
+			}
 			
 			this.render();
 		}
@@ -92,8 +77,6 @@
 		render() {
 			console.log('RENDER');
 			let dataBindingMetadata = this.myDataSource.metadata;
-			console.log('DATA BINDING METADATA from render main', dataBindingMetadata);
-
 			this.shadowRoot.innerHTML = `
 				<style>
 				:host {

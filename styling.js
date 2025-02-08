@@ -65,38 +65,31 @@
 				</div>
 			`;
 
-	class GradeEntryForm extends HTMLElement {
+	class IndexEntryForm extends HTMLElement {
 		constructor() {
 			super();
 			this.attachShadow({ mode: 'open' }).appendChild(template.content.cloneNode(true));
-
-
 			this.elements = [];
 			this.indexes = {};
 			this.drawInputFields();
+			console.log('from styling.js constructor done');
 		}
 
 		connectedCallback() {
-			console.log('from styling.js connectedCallback');
+			console.log('from styling.js connectedCallback. render will be called');
 			this.render();
 		}
 
 
 		render() {
-			console.log('from styling.js render');
-			console.log('DATABINDING', this.myDataSource)
-
+			console.log('from styling.js render but it is empty');
 		}
 
 
 		set myDataSource(dataBinding) {
+			console.log('from styling.js set myDataSource. this should maintain in sync the databindings in the model and this.elements. After making sure they are in sync drawInputFields is called');
 
 			this._myDataSource = dataBinding;
-			console.log('from styling.jsssss', this._myDataSource);
-			console.dir(this);
-			for (let k in this) {
-				console.log('key', k);
-			}
 			let dataBindObj = this._myDataSource.metadata;
 			if (!dataBindObj) {
 				return;
@@ -104,9 +97,6 @@
 			// check if new dimensions not already in this.elements
 			const newDimensions = Object.keys(dataBindObj.dimensions).filter(key => !this.elements.map(b => b[1]).includes(dataBindObj.dimensions[key].id));
 			const newMeasures = Object.keys(dataBindObj.mainStructureMembers).filter(key => !this.elements.map(b => b[1]).includes(dataBindObj.mainStructureMembers[key].id));
-			console.log('newDimensions', newDimensions);
-			console.log('newMeasures', newMeasures);
-
 			newDimensions.forEach((key) => {
 				this.elements.push([dataBindObj.dimensions[key].description, dataBindObj.dimensions[key].id]);
 			})
@@ -120,12 +110,14 @@
 					|| Object.keys(dataBindObj.mainStructureMembers).map(codeName => dataBindObj.mainStructureMembers[codeName].id).includes(id);
 			});
 
-
-			console.log('from styling.js list', this.elements);
+			console.log('from styling.js. (still inside set MyDataSource) this.elements: ', this.elements);
 			this.drawInputFields();
 		}
 
 		drawInputFields() {
+			console.log('from styling.js drawInputFields');
+			console.log('(inside drawInputFields) this.myCardIdxs', this.myCardIdxs);
+
 			this.shadowRoot.querySelector('#mainFormContainer').innerHTML = `<h1>Tree card indexes</h1>
 						<form class="index-form" onsubmit="return false;">
 						${this.elements.map(dimension => `
@@ -145,22 +137,18 @@
 				this.handleFormSubmit();
 			});
 
-			console.log('this.cradIDXs', this.myCardIdxs);
 
 			let list_of_dimensions = this.elements.map(dimension => dimension[1]);
-			console.log('list_of_dimensions', list_of_dimensions);
 			for (let dimension of list_of_dimensions) {
-				if (this.myCardIdxs(dimension) != undefined) {
-					this.shadowRoot.querySelector(`input[name="${dimension}"]`).value = this.myCardIdxs(dimension);
+				if (this.myCardIdxs[dimension] != undefined) {
+					this.shadowRoot.querySelector(`input[name="${dimension}"]`).value = this.myCardIdxs[dimension];
 				}
 			}
 		}
 
 		handleFormSubmit() {
-
-			console.log('databinding outside', this.myDataSource);
+			console.log('from styling.js handleFormSubmit. This should update the indexes object and dispatch a custom event with new myCardIdxs property');
 			const inputs = this.shadowRoot.querySelectorAll('input[type="number"]');
-
 			inputs.forEach(input => {
 				const name = input.name;
 				if (name) {
@@ -168,12 +156,6 @@
 				}
 
 			});
-
-			this.dispatchFormData();
-		}
-
-		dispatchFormData() {
-			console.log('from styling.js dispatchFormData');
 
 			this.dispatchEvent(new CustomEvent("propertiesChanged", {
 				detail: {
@@ -185,6 +167,6 @@
 		}
 	}
 
-	customElements.define('com-sap-sample-coloredbox-styling', GradeEntryForm);
+	customElements.define('com-sap-sample-coloredbox-styling', IndexEntryForm);
 
 })();
