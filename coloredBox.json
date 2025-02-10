@@ -36,17 +36,26 @@
 		"myCardIdxs": {
 			"type": "Object<string>",
 			"description": "A collection of strings object"
+		},
+		"measuresDB": {
+			"type": "kpiCardInfo[]",
+			"description": "Measures data binding"
+		},
+		"pastDB": {
+			"type": "dataBinding",
+			"description": "Dimensions data binding"
 		}
 	},
 	"methods": {
 
 	},
+	"imports": ["dataBinding"],
 	"events": {
 		"onClick": {
 			"description": "Called when the user clicks the Colored Box."
 		},
-		"indexesUpdated": {
-			"description": "Called when the user enters index for measure or dimension."
+		"updateNeeded": {
+			"description": "Called when the user clicks button in styling.js"
 		}
 	},
 	"dataBindings": {
@@ -64,7 +73,56 @@
 			}
 		  ]
 		}
-	  }
+	  },
+	"types": {
+		"kpiCardInfo": {
+			"description": "DataBinding after dimensions were removed. Contains only measures",
+			"properties": [
+				{
+					"name": "type",
+					"type": "string",
+					"description": "Either measure or dimension",
+					"mandatory": true
+				},
+				{
+				  "name": "label",
+				  "type": "string",
+				  "description": "Label of the measure",
+				  "mandatory": true
+				},
+				{
+				  "name": "id",
+				  "type": "string",
+				  "description": "Unique identifier",
+				  "mandatory": true
+				},
+				{
+				  "name": "value",
+				  "type": "number",
+				  "description": "The value of the measure",
+				  "mandatory": true
+				},
+				{
+				  "name": "chainId",
+				  "type": "string",
+				  "description": "Chain ID of the measure",
+				  "mandatory": true
+				},
+				{
+				  "name": "parentId",
+				  "type": "string",
+				  "description": "Parent identifier",
+				  "mandatory": false
+				},
+				{
+				  "name": "children",
+				  "type": "string[]",
+				  "description": "Child measures",
+				  "mandatory": false
+				}
+			]
+		}
+	}
 }
 
  

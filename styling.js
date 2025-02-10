@@ -71,7 +71,6 @@
 			this.attachShadow({ mode: 'open' }).appendChild(template.content.cloneNode(true));
 			this.elements = [];
 			this.indexes = {};
-			this.drawInputFields();
 			console.log('from styling.js constructor done');
 		}
 
@@ -157,6 +156,14 @@
 
 			});
 
+			// notify that new indexes are available, and dataTree must be updated (this is to separate between normal bootup and update)
+			this.dispatchEvent(new CustomEvent('updateNeeded', {
+				detail: { updateNeeded: true},
+				bubbles: true,
+				composed: true
+			}));
+
+			// update myCardIdxs property with new indexes
 			this.dispatchEvent(new CustomEvent("propertiesChanged", {
 				detail: {
 					properties: {
